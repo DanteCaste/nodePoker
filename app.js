@@ -26,14 +26,13 @@ io.on('connection', (socket) => {
 
     //default username
     socket.username = "Anonymus"
-    id++
-    socket.id = id
     user = {
         id: socket.id,
         username: socket.username,
         vote: ''
     }
     users.push(user)
+    socket.emit('status', {users : users})
     //listen on change_username
     socket.on('change_username', (data) => {
         socket.username = data.username
@@ -65,5 +64,16 @@ io.on('connection', (socket) => {
     //listen on reveal
     socket.on('reveal', (data) => {
         io.sockets.emit('reveal')
+    })
+
+    //Disconnect
+    socket.on("disconnect", (data) => {
+        user = users.find(function(user) {
+            return user.id === socket.id
+        })
+        const index = users.indexOf(user);
+        if (index > -1) {
+        users.splice(index, 1);
+        }
     })
 })
